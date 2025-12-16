@@ -9,7 +9,7 @@ const getClient = () => {
   const apiKey = process.env.API_KEY;
   
   if (!apiKey) {
-    throw new Error("Gemini API Key is missing. Get a FREE key at https://aistudio.google.com/app/apikey and add it to your .env file as API_KEY.");
+    throw new Error("Gemini API Key is missing. Please add API_KEY to your .env file.");
   }
 
   if (!aiClient) {
@@ -59,7 +59,7 @@ export const geminiService = {
       
       // Propagate explicit API key errors so the UI can show the instruction
       if (error.message && (error.message.includes("API Key") || error.message.includes("API_KEY") || error.message.includes("403"))) {
-        throw error;
+         throw new Error("⚠️ Configuration Error: Gemini API Key is missing. \n\nPlease create a .env file with API_KEY=your_key_here");
       }
       
       // Handle network or other API errors

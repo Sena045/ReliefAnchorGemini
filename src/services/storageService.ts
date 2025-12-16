@@ -23,9 +23,12 @@ const getKeys = () => {
 };
 
 // Generate a checksum for critical fields
+// We strictly convert null/undefined to empty strings to ensure consistency
 const generateSignature = (state: Partial<UserState>): string => {
-  // We sign the fields that involve money or access control
-  const payload = `${state.email}|${state.isPremium}|${state.premiumUntil}|${state.region}|${state.paymentId || ''}|${state.planType || ''}|${SECURITY_SALT}`;
+  const val = (v: any) => (v === null || v === undefined) ? '' : String(v);
+  
+  // Payload structure: email|isPremium|premiumUntil|region|paymentId|planType|SALT
+  const payload = `${val(state.email)}|${val(state.isPremium)}|${val(state.premiumUntil)}|${val(state.region)}|${val(state.paymentId)}|${val(state.planType)}|${SECURITY_SALT}`;
   
   // Simple DJB2-like hashing for client-side obfuscation
   let hash = 5381;
@@ -95,15 +98,21 @@ export const storageService = {
     }
     
     // SECURITY CHECK: Verify Integrity
-    const expectedSignature = generateSignature(user);
-    if (user.signature !== expectedSignature) {
-      console.warn("Security Alert: User data tampering detected. Reverting to safe state.");
-      // Tampering detected
+    // We must handle cases where old data might use the old signature algorithm
+    // If the signature fails with the new robust algorithm, we check if it warrants a reset.
+    
+    const currentSignature = generateSignature(user);
+    
+    if (user.signature !== currentSignature) {
+      console.warn("Signature mismatch. Stored:", user.signature, "Calculated:", currentSignature);
+      console.warn("Security Alert: User data tampering detected or Algorithm mismatch. Reverting to safe state.");
+      
       user.isPremium = false;
       user.premiumUntil = null;
       user.planType = null;
       user.paymentId = undefined;
-      // Re-sign
+      
+      // Re-sign with new algorithm
       user.signature = generateSignature(user);
       localStorage.setItem(KEYS.USER, JSON.stringify(user));
     }

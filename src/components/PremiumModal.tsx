@@ -48,7 +48,7 @@ export const PremiumModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) =>
       },
       prefill: {
         name: "ReliefAnchor User",
-        email: "user@reliefanchor.app"
+        email: user.email // Use actual user email
       },
       theme: {
         color: "#0f766e"
