@@ -142,6 +142,7 @@ export const storageService = {
     // 2. EXPIRY CHECK: Check if subscription has expired
     if (user.isPremium && user.premiumUntil) {
       // If premiumUntil is strictly less than today, it's expired.
+      // String comparison is valid for YYYY-MM-DD
       if (user.premiumUntil < today) {
         console.log("Subscription expired on", user.premiumUntil);
         user.isPremium = false;
@@ -271,8 +272,9 @@ export const storageService = {
   },
 
   // Validates a token and restores premium status if valid
-  restorePurchase: (token: string): { success: boolean; message: string } => {
+  restorePurchase: (tokenInput: string): { success: boolean; message: string } => {
     try {
+        const token = tokenInput.trim();
         const decoded = atob(token);
         const parts = decoded.split('|');
         // Expected: email | expiry | plan | signature
@@ -300,7 +302,8 @@ export const storageService = {
         }
 
         // 3. Verify Expiry
-        if (new Date(expiry) < new Date(getTodayString())) {
+        // Use string comparison (Lexicographical works for ISO YYYY-MM-DD) which is safer for timezones
+        if (expiry < getTodayString()) {
              return { success: false, message: "This subscription key has expired." };
         }
 
@@ -314,7 +317,7 @@ export const storageService = {
         return { success: true, message: "Premium restored successfully!" };
     } catch (e) {
         console.error(e);
-        return { success: false, message: "Failed to process key." };
+        return { success: false, message: "Failed to process key. Ensure you copied the full code." };
     }
   }
 };

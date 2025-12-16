@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, User, LogOut, Ban, Calendar, Mail, Key, Copy, Check, Download } from 'lucide-react';
+import { Globe, User, LogOut, Ban, Calendar, Mail, Key, Copy, Check, QrCode } from 'lucide-react';
 import { storageService } from '../services/storageService';
 import { UserState } from '../types';
 import { PremiumModal } from '../components/PremiumModal';
@@ -10,6 +10,7 @@ export default function Settings() {
   
   // Recovery State
   const [recoveryToken, setRecoveryToken] = useState('');
+  const [showQR, setShowQR] = useState(false);
   const [restoreInput, setRestoreInput] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -122,20 +123,44 @@ export default function Settings() {
                 </div>
                 
                 {recoveryToken ? (
-                  <div className="animate-in fade-in slide-in-from-top-2">
+                  <div className="animate-in fade-in slide-in-from-top-2 space-y-3">
+                    <p className="text-[11px] text-slate-500 leading-tight">
+                      To activate Premium on another device, copy this key or scan the QR code.
+                    </p>
+
+                    {/* QR Toggle */}
+                    <div className="flex justify-center">
+                       <button 
+                         onClick={() => setShowQR(!showQR)}
+                         className="flex items-center gap-2 text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-50"
+                       >
+                         <QrCode size={14} />
+                         {showQR ? "Hide QR Code" : "Show QR Code"}
+                       </button>
+                    </div>
+
+                    {showQR && (
+                      <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border border-slate-200">
+                        <img 
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(recoveryToken)}`}
+                          alt="Recovery Key QR"
+                          className="w-32 h-32"
+                        />
+                        <p className="text-[10px] text-slate-400 mt-2 text-center">Scan with your other device's camera to copy text</p>
+                      </div>
+                    )}
+
                     <div className="bg-white p-2 rounded border border-slate-200 text-[10px] text-slate-500 break-all font-mono leading-tight">
                       {recoveryToken}
                     </div>
+                    
                     <button 
                       onClick={handleCopyKey}
-                      className="mt-2 w-full flex items-center justify-center gap-2 text-xs font-bold text-brand-600 py-1.5 hover:bg-brand-50 rounded transition-colors"
+                      className="w-full flex items-center justify-center gap-2 text-xs font-bold text-brand-600 py-1.5 hover:bg-brand-50 rounded transition-colors"
                     >
                       {copied ? <Check size={14} /> : <Copy size={14} />}
                       {copied ? "Copied!" : "Copy to Clipboard"}
                     </button>
-                    <p className="mt-1 text-[10px] text-slate-400 text-center">
-                      Save this key! Use it to restore Premium on other devices.
-                    </p>
                   </div>
                 ) : (
                    <p className="text-xs text-slate-400">Use this key to activate Premium on other devices.</p>
@@ -160,14 +185,23 @@ export default function Settings() {
               </button>
               
               {/* Restore Purchase Section */}
-              <div className="border-t border-slate-100 pt-3">
-                <p className="text-xs font-semibold text-slate-500 mb-2 uppercase">Already purchased?</p>
+              <div className="border-t border-slate-100 pt-4">
+                 <div className="flex items-start gap-2 mb-3">
+                   <Key size={14} className="text-slate-400 mt-0.5" />
+                   <div>
+                     <p className="text-xs font-semibold text-slate-600 uppercase">Sync Premium Status</p>
+                     <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
+                       Purchased on another device? Paste your Recovery Key below.
+                     </p>
+                   </div>
+                 </div>
+                 
                 <div className="flex gap-2">
                   <input 
                     type="text" 
                     value={restoreInput}
                     onChange={(e) => setRestoreInput(e.target.value)}
-                    placeholder="Paste Recovery Key here..."
+                    placeholder="Paste Key here..."
                     className="flex-1 text-sm px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-brand-500"
                   />
                   <button 
