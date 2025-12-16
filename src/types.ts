@@ -6,6 +6,8 @@ export interface UserState {
   premiumUntil: string | null;
   messageCount: number;
   lastMessageDate: string; // YYYY-MM-DD
+  signature?: string; // Cryptographic-like hash to prevent tampering
+  paymentId?: string; // Razorpay Payment ID for audit
 }
 
 export interface MoodLog {
@@ -51,6 +53,9 @@ export interface RazorpayOptions {
   notes?: Record<string, string>;
   theme: {
     color: string;
+  };
+  modal?: {
+    ondismiss?: () => void;
   };
 }
 

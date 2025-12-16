@@ -29,7 +29,8 @@ export const PremiumModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) =>
         if (response.razorpay_payment_id) {
           storageService.updateUser({
             isPremium: true,
-            premiumUntil: '2099-12-31' // Lifetime
+            premiumUntil: '2099-12-31', // Lifetime
+            paymentId: response.razorpay_payment_id // Link transaction ID for audit
           });
           onSuccess();
           onClose();

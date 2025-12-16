@@ -16,8 +16,8 @@ export default function Settings() {
   };
 
   const handleClearData = () => {
-    if (confirm("Are you sure? This deletes all chats and mood logs.")) {
-      localStorage.clear();
+    if (confirm("Are you sure? This deletes all your chats, mood logs, and journal entries. \n\nYour Premium Membership and Region settings will be SAFE and preserved.")) {
+      storageService.clearPrivateData();
       window.location.reload();
     }
   };
@@ -97,7 +97,7 @@ export default function Settings() {
           
           <button onClick={handleClearData} className="w-full flex items-center gap-3 text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors">
             <LogOut size={20} />
-            <span>Clear Local Data</span>
+            <span>Clear Chats & Logs</span>
           </button>
           
           <div className="pt-2 text-xs text-slate-400 text-center">

@@ -2,22 +2,17 @@ import { GoogleGenAI } from "@google/genai";
 import { storageService } from "./storageService";
 import { HELPLINES } from "../constants";
 
-const getApiKey = () => {
-  // Try to get from environment
-  const key = process.env.API_KEY;
-  if (key && key.length > 0) return key;
-  return null;
-};
-
 // Lazy initialization
 let aiClient: GoogleGenAI | null = null;
 
 const getClient = () => {
+  const apiKey = process.env.API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("Gemini API Key is missing. Get a FREE key at https://aistudio.google.com/app/apikey and add it to your .env file as API_KEY.");
+  }
+
   if (!aiClient) {
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      throw new Error("Gemini API Key is missing. Get a FREE key at https://aistudio.google.com/app/apikey and add it to your .env file as API_KEY.");
-    }
     aiClient = new GoogleGenAI({ apiKey });
   }
   return aiClient;
@@ -62,8 +57,8 @@ export const geminiService = {
     } catch (error: any) {
       console.error("Gemini API Error:", error);
       
-      // Propagate explicit API key errors
-      if (error.message && (error.message.includes("API Key") || error.message.includes("API_KEY"))) {
+      // Propagate explicit API key errors so the UI can show the instruction
+      if (error.message && (error.message.includes("API Key") || error.message.includes("API_KEY") || error.message.includes("403"))) {
         throw error;
       }
       

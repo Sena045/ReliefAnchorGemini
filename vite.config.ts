@@ -8,8 +8,15 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     base: '/',
     define: {
-      // Safely replace process.env.API_KEY with the string value, fallback to the provided key if undefined
-      'process.env.API_KEY': JSON.stringify(env.API_KEY || 'AIzaSyB_bK7lttHB6BD7OnR94I8e27ejV_z8dh0')
+      // Safely replace process.env.API_KEY with the string value from environment.
+      // We default to empty string so the app can detect missing keys at runtime and instruct the user.
+      'process.env.API_KEY': JSON.stringify(env.API_KEY || '')
+    },
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: './src/setupTests.ts',
+      css: false,
     },
     build: {
       outDir: 'dist',
