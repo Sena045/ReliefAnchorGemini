@@ -15,6 +15,12 @@ export interface MoodLog {
   note?: string;
 }
 
+export interface JournalEntry {
+  id: string;
+  text: string;
+  timestamp: number;
+}
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'model';

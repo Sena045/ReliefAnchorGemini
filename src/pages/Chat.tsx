@@ -68,11 +68,11 @@ export default function Chat() {
         storageService.saveChatHistory(updated);
         return updated;
       });
-    } catch (error) {
+    } catch (error: any) {
       const errorMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'model',
-        text: "I'm having trouble connecting right now. Please check your internet connection.",
+        text: error.message || "I'm having trouble connecting right now.",
         timestamp: Date.now()
       };
       setMessages(prev => [...prev, errorMsg]);

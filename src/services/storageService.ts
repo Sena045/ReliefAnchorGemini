@@ -1,9 +1,10 @@
-import { UserState, MoodLog, ChatMessage } from '../types';
+import { UserState, MoodLog, ChatMessage, JournalEntry } from '../types';
 
 const KEYS = {
   USER: 'relief_anchor_user',
   MOOD: 'relief_anchor_moods',
-  CHAT: 'relief_anchor_chat'
+  CHAT: 'relief_anchor_chat',
+  JOURNAL: 'relief_anchor_journal'
 };
 
 const INITIAL_USER: UserState = {
@@ -65,5 +66,21 @@ export const storageService = {
 
   clearChat: () => {
     localStorage.removeItem(KEYS.CHAT);
+  },
+
+  getJournalEntries: (): JournalEntry[] => {
+    const stored = localStorage.getItem(KEYS.JOURNAL);
+    return stored ? JSON.parse(stored) : [];
+  },
+
+  addJournalEntry: (text: string) => {
+    const entries = storageService.getJournalEntries();
+    const newEntry: JournalEntry = {
+      id: crypto.randomUUID(),
+      text,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(KEYS.JOURNAL, JSON.stringify([newEntry, ...entries]));
+    return newEntry;
   }
 };
