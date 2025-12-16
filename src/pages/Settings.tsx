@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, User, LogOut, Ban, Calendar, Mail } from 'lucide-react';
+import { Globe, User, LogOut, Ban, Calendar, Mail, Key, Copy, Check, Download } from 'lucide-react';
 import { storageService } from '../services/storageService';
 import { UserState } from '../types';
 import { PremiumModal } from '../components/PremiumModal';
@@ -7,6 +7,11 @@ import { PremiumModal } from '../components/PremiumModal';
 export default function Settings() {
   const [user, setUser] = useState<UserState>(storageService.getUser());
   const [showPremium, setShowPremium] = useState(false);
+  
+  // Recovery State
+  const [recoveryToken, setRecoveryToken] = useState('');
+  const [restoreInput, setRestoreInput] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newUser = storageService.updateUser({ region: e.target.value as 'INDIA' | 'GLOBAL' });
@@ -44,6 +49,31 @@ export default function Settings() {
     }
   };
 
+  const handleShowKey = () => {
+    const token = storageService.getRecoveryToken();
+    if (token) setRecoveryToken(token);
+  };
+
+  const handleCopyKey = () => {
+    if (recoveryToken) {
+      navigator.clipboard.writeText(recoveryToken);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleRestore = () => {
+    if (!restoreInput.trim()) return;
+    const result = storageService.restorePurchase(restoreInput.trim());
+    if (result.success) {
+      alert(result.message);
+      setUser(storageService.getUser());
+      setRestoreInput('');
+    } else {
+      alert("Error: " + result.message);
+    }
+  };
+
   return (
     <div className="p-4 bg-slate-50 h-full overflow-y-auto">
       <h1 className="text-2xl font-bold text-slate-900 mb-6">Settings</h1>
@@ -76,20 +106,80 @@ export default function Settings() {
           </div>
           
           {user.isPremium ? (
-            <button
-              onClick={handleCancelPremium}
-              className="w-full bg-red-50 text-red-600 border border-red-200 py-2.5 rounded-xl font-medium shadow-sm hover:bg-red-100 active:scale-95 transition-all flex items-center justify-center gap-2"
-            >
-              <Ban size={18} />
-              Cancel Premium
-            </button>
+            <div className="space-y-3">
+              {/* Backup Key Section */}
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2 text-slate-700 font-medium text-sm">
+                    <Key size={16} />
+                    <span>Backup Premium Key</span>
+                  </div>
+                  {!recoveryToken && (
+                    <button onClick={handleShowKey} className="text-xs text-brand-600 font-bold hover:underline">
+                      View Key
+                    </button>
+                  )}
+                </div>
+                
+                {recoveryToken ? (
+                  <div className="animate-in fade-in slide-in-from-top-2">
+                    <div className="bg-white p-2 rounded border border-slate-200 text-[10px] text-slate-500 break-all font-mono leading-tight">
+                      {recoveryToken}
+                    </div>
+                    <button 
+                      onClick={handleCopyKey}
+                      className="mt-2 w-full flex items-center justify-center gap-2 text-xs font-bold text-brand-600 py-1.5 hover:bg-brand-50 rounded transition-colors"
+                    >
+                      {copied ? <Check size={14} /> : <Copy size={14} />}
+                      {copied ? "Copied!" : "Copy to Clipboard"}
+                    </button>
+                    <p className="mt-1 text-[10px] text-slate-400 text-center">
+                      Save this key! Use it to restore Premium on other devices.
+                    </p>
+                  </div>
+                ) : (
+                   <p className="text-xs text-slate-400">Use this key to activate Premium on other devices.</p>
+                )}
+              </div>
+
+              <button
+                onClick={handleCancelPremium}
+                className="w-full bg-white text-red-500 border border-red-100 py-2.5 rounded-xl font-medium shadow-sm hover:bg-red-50 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm"
+              >
+                <Ban size={16} />
+                Cancel Premium
+              </button>
+            </div>
           ) : (
-            <button
-              onClick={() => setShowPremium(true)}
-              className="w-full bg-brand-600 text-white py-2.5 rounded-xl font-medium shadow-md shadow-brand-200 active:scale-95 transition-transform"
-            >
-              Upgrade to Premium
-            </button>
+            <div className="space-y-4">
+              <button
+                onClick={() => setShowPremium(true)}
+                className="w-full bg-brand-600 text-white py-3 rounded-xl font-medium shadow-md shadow-brand-200 active:scale-95 transition-transform"
+              >
+                Upgrade to Premium
+              </button>
+              
+              {/* Restore Purchase Section */}
+              <div className="border-t border-slate-100 pt-3">
+                <p className="text-xs font-semibold text-slate-500 mb-2 uppercase">Already purchased?</p>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    value={restoreInput}
+                    onChange={(e) => setRestoreInput(e.target.value)}
+                    placeholder="Paste Recovery Key here..."
+                    className="flex-1 text-sm px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-brand-500"
+                  />
+                  <button 
+                    onClick={handleRestore}
+                    disabled={!restoreInput}
+                    className="bg-slate-800 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-700 disabled:opacity-50"
+                  >
+                    Restore
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
         </section>
 
@@ -142,7 +232,7 @@ export default function Settings() {
         onClose={() => setShowPremium(false)}
         onSuccess={() => {
           setUser(storageService.getUser());
-          alert("Premium Activated!");
+          // Don't alert here, the modal handles the success view now
         }}
       />
     </div>

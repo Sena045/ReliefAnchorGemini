@@ -5,6 +5,15 @@ const SESSION_KEY = 'relief_anchor_active_session';
 // A hidden salt to prevent simple JSON editing in DevTools
 const SECURITY_SALT = "RELIEF_ANCHOR_v1_SECURE_HASH_9988";
 
+// Helper for consistent local YYYY-MM-DD strings (Client Local Time)
+const getTodayString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 // Helper to get namespaced keys based on active user
 const getKeys = () => {
   const email = localStorage.getItem(SESSION_KEY);
@@ -58,7 +67,7 @@ const createInitialUser = (email: string): UserState => {
     premiumUntil: null,
     planType: null,
     messageCount: 0,
-    lastMessageDate: new Date().toISOString().split('T')[0],
+    lastMessageDate: getTodayString(),
     paymentId: undefined
   };
   // Sign the initial state
@@ -128,26 +137,22 @@ export const storageService = {
     }
 
     let hasUpdates = false;
+    const today = getTodayString();
 
     // 2. EXPIRY CHECK: Check if subscription has expired
     if (user.isPremium && user.premiumUntil) {
-      const today = new Date().toISOString().split('T')[0];
       // If premiumUntil is strictly less than today, it's expired.
-      // E.g. Valid until 2024-01-01. Today is 2024-01-02. Expired.
       if (user.premiumUntil < today) {
         console.log("Subscription expired on", user.premiumUntil);
         user.isPremium = false;
         user.premiumUntil = null;
         user.planType = null;
-        // We keep paymentId for historical reference unless it causes issues, 
-        // but for now let's clear it to be safe and match the 'Free' state structure.
         user.paymentId = undefined; 
         hasUpdates = true;
       }
     }
 
     // 3. DAILY RESET: Check message count
-    const today = new Date().toISOString().split('T')[0];
     if (user.lastMessageDate !== today) {
       user.messageCount = 0;
       user.lastMessageDate = today;
@@ -169,9 +174,6 @@ export const storageService = {
     
     // Merge updates
     const updated = { ...current, ...updates };
-    
-    // Explicitly handle undefined to ensure clean object if needed,
-    // though JSON.stringify handles undefined by removing keys.
     
     // Recalculate signature
     updated.signature = generateSignature(updated);
@@ -239,5 +241,80 @@ export const storageService = {
     localStorage.removeItem(KEYS.CHAT);
     localStorage.removeItem(KEYS.MOOD);
     localStorage.removeItem(KEYS.JOURNAL);
+  },
+
+  // --- Recovery Token System ---
+
+  // Generates a portable string that proves premium status
+  getRecoveryToken: (): string | null => {
+    const user = storageService.getUser();
+    if (!user.isPremium || !user.premiumUntil) return null;
+    
+    // Payload: email|expiry|plan
+    const payload = `${user.email}|${user.premiumUntil}|${user.planType}`;
+    
+    // Generate signature for this specific payload
+    let hash = 5381;
+    const fullStr = payload + SECURITY_SALT;
+    for (let i = 0; i < fullStr.length; i++) {
+        hash = ((hash << 5) + hash) + fullStr.charCodeAt(i);
+    }
+    const signature = hash.toString(36);
+    
+    // Return Base64 of payload|signature
+    try {
+      return btoa(`${payload}|${signature}`);
+    } catch (e) {
+      console.error("Failed to encode token", e);
+      return null;
+    }
+  },
+
+  // Validates a token and restores premium status if valid
+  restorePurchase: (token: string): { success: boolean; message: string } => {
+    try {
+        const decoded = atob(token);
+        const parts = decoded.split('|');
+        // Expected: email | expiry | plan | signature
+        if (parts.length !== 4) return { success: false, message: "Invalid token format." };
+        
+        const [email, expiry, plan, sig] = parts;
+        const currentUserEmail = storageService.getCurrentEmail();
+        
+        // 1. Verify Signature
+        const payload = `${email}|${expiry}|${plan}`;
+        let hash = 5381;
+        const fullStr = payload + SECURITY_SALT;
+        for (let i = 0; i < fullStr.length; i++) {
+            hash = ((hash << 5) + hash) + fullStr.charCodeAt(i);
+        }
+        const calculatedSig = hash.toString(36);
+        
+        if (sig !== calculatedSig) {
+          return { success: false, message: "Invalid key signature. Please check the code." };
+        }
+        
+        // 2. Check ownership (Warn but allow if emails differ, as users might change emails)
+        if (currentUserEmail && currentUserEmail !== email) {
+           console.warn(`Restoring purchase from ${email} to ${currentUserEmail}`);
+        }
+
+        // 3. Verify Expiry
+        if (new Date(expiry) < new Date(getTodayString())) {
+             return { success: false, message: "This subscription key has expired." };
+        }
+
+        // 4. Update User
+        storageService.updateUser({
+            isPremium: true,
+            premiumUntil: expiry,
+            planType: plan as any
+        });
+        
+        return { success: true, message: "Premium restored successfully!" };
+    } catch (e) {
+        console.error(e);
+        return { success: false, message: "Failed to process key." };
+    }
   }
 };
