@@ -9,8 +9,8 @@ export default defineConfig(({ mode }) => {
     base: '/',
     define: {
       // Safely replace process.env.API_KEY with the string value from environment.
-      // We default to empty string so the app can detect missing keys at runtime and instruct the user.
-      'process.env.API_KEY': JSON.stringify(env.API_KEY || '')
+      // We check both API_KEY and VITE_API_KEY to be robust.
+      'process.env.API_KEY': JSON.stringify(env.API_KEY || env.VITE_API_KEY || '')
     },
     test: {
       globals: true,
