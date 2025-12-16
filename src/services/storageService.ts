@@ -274,11 +274,21 @@ export const storageService = {
   // Validates a token and restores premium status if valid
   restorePurchase: (tokenInput: string): { success: boolean; message: string } => {
     try {
-        const token = tokenInput.trim();
-        const decoded = atob(token);
+        // Aggressively clean input (remove whitespace, newlines, etc)
+        const token = tokenInput.replace(/\s/g, '');
+        
+        if (!token) return { success: false, message: "Please enter a key." };
+
+        let decoded;
+        try {
+            decoded = atob(token);
+        } catch (e) {
+            return { success: false, message: "Invalid key format (Not Base64)." };
+        }
+
         const parts = decoded.split('|');
         // Expected: email | expiry | plan | signature
-        if (parts.length !== 4) return { success: false, message: "Invalid token format." };
+        if (parts.length !== 4) return { success: false, message: "Invalid token structure." };
         
         const [email, expiry, plan, sig] = parts;
         const currentUserEmail = storageService.getCurrentEmail();
@@ -293,7 +303,7 @@ export const storageService = {
         const calculatedSig = hash.toString(36);
         
         if (sig !== calculatedSig) {
-          return { success: false, message: "Invalid key signature. Please check the code." };
+          return { success: false, message: "Invalid key signature. Check for typos." };
         }
         
         // 2. Check ownership (Warn but allow if emails differ, as users might change emails)
@@ -304,7 +314,7 @@ export const storageService = {
         // 3. Verify Expiry
         // Use string comparison (Lexicographical works for ISO YYYY-MM-DD) which is safer for timezones
         if (expiry < getTodayString()) {
-             return { success: false, message: "This subscription key has expired." };
+             return { success: false, message: `This subscription expired on ${expiry}.` };
         }
 
         // 4. Update User
@@ -314,7 +324,7 @@ export const storageService = {
             planType: plan as any
         });
         
-        return { success: true, message: "Premium restored successfully!" };
+        return { success: true, message: "Premium restored successfully! Enjoy your benefits." };
     } catch (e) {
         console.error(e);
         return { success: false, message: "Failed to process key. Ensure you copied the full code." };

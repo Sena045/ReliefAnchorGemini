@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, User, LogOut, Ban, Calendar, Mail, Key, Copy, Check, QrCode } from 'lucide-react';
+import { Globe, User, LogOut, Ban, Calendar, Mail, Key, Copy, Check, QrCode, Smartphone, ArrowRight, Info, Star } from 'lucide-react';
 import { storageService } from '../services/storageService';
 import { UserState } from '../types';
 import { PremiumModal } from '../components/PremiumModal';
@@ -108,31 +108,31 @@ export default function Settings() {
           
           {user.isPremium ? (
             <div className="space-y-3">
-              {/* Backup Key Section */}
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 text-slate-700 font-medium text-sm">
-                    <Key size={16} />
-                    <span>Backup Premium Key</span>
-                  </div>
-                  {!recoveryToken && (
-                    <button onClick={handleShowKey} className="text-xs text-brand-600 font-bold hover:underline">
-                      View Key
-                    </button>
-                  )}
+              {/* Backup Key Section - FOR PREMIUM USERS */}
+              <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+                <div className="flex items-center gap-2 text-amber-900 font-bold text-sm mb-2">
+                  <Smartphone size={16} />
+                  <span>Sync to Mobile</span>
                 </div>
                 
-                {recoveryToken ? (
-                  <div className="animate-in fade-in slide-in-from-top-2 space-y-3">
-                    <p className="text-[11px] text-slate-500 leading-tight">
-                      To activate Premium on another device, copy this key or scan the QR code.
-                    </p>
+                <p className="text-xs text-amber-800 mb-3 leading-relaxed">
+                   Premium is stored on this device. To use it on your phone:
+                </p>
 
+                {!recoveryToken ? (
+                   <button 
+                     onClick={handleShowKey} 
+                     className="w-full bg-white border border-amber-200 text-amber-800 text-xs font-bold py-2 rounded-lg shadow-sm hover:bg-amber-100 transition-colors flex items-center justify-center gap-2"
+                   >
+                     <Key size={14} /> Reveal Sync Key
+                   </button>
+                ) : (
+                  <div className="animate-in fade-in slide-in-from-top-2 space-y-3">
                     {/* QR Toggle */}
                     <div className="flex justify-center">
                        <button 
                          onClick={() => setShowQR(!showQR)}
-                         className="flex items-center gap-2 text-xs bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-50"
+                         className="flex items-center gap-2 text-xs bg-white border border-amber-200 px-3 py-1.5 rounded-lg text-amber-800 hover:bg-amber-50 font-medium"
                        >
                          <QrCode size={14} />
                          {showQR ? "Hide QR Code" : "Show QR Code"}
@@ -140,30 +140,30 @@ export default function Settings() {
                     </div>
 
                     {showQR && (
-                      <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border border-slate-200">
+                      <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border border-amber-200 shadow-sm">
                         <img 
                           src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(recoveryToken)}`}
                           alt="Recovery Key QR"
                           className="w-32 h-32"
                         />
-                        <p className="text-[10px] text-slate-400 mt-2 text-center">Scan with your other device's camera to copy text</p>
+                        <p className="text-[10px] text-slate-400 mt-2 text-center max-w-[150px]">
+                          Open Settings on your other device and scan this, or copy the key below.
+                        </p>
                       </div>
                     )}
 
-                    <div className="bg-white p-2 rounded border border-slate-200 text-[10px] text-slate-500 break-all font-mono leading-tight">
+                    <div className="bg-white p-2.5 rounded border border-amber-200 text-[10px] text-slate-600 break-all font-mono leading-tight shadow-inner select-all">
                       {recoveryToken}
                     </div>
                     
                     <button 
                       onClick={handleCopyKey}
-                      className="w-full flex items-center justify-center gap-2 text-xs font-bold text-brand-600 py-1.5 hover:bg-brand-50 rounded transition-colors"
+                      className="w-full flex items-center justify-center gap-2 text-xs font-bold text-amber-800 py-2 hover:bg-amber-100 rounded-lg transition-colors border border-transparent hover:border-amber-200"
                     >
                       {copied ? <Check size={14} /> : <Copy size={14} />}
                       {copied ? "Copied!" : "Copy to Clipboard"}
                     </button>
                   </div>
-                ) : (
-                   <p className="text-xs text-slate-400">Use this key to activate Premium on other devices.</p>
                 )}
               </div>
 
@@ -179,96 +179,25 @@ export default function Settings() {
             <div className="space-y-4">
               <button
                 onClick={() => setShowPremium(true)}
-                className="w-full bg-brand-600 text-white py-3 rounded-xl font-medium shadow-md shadow-brand-200 active:scale-95 transition-transform"
+                className="w-full bg-brand-600 text-white py-3 rounded-xl font-medium shadow-md shadow-brand-200 active:scale-95 transition-transform flex items-center justify-center gap-2"
               >
+                <Star size={18} className="fill-white/20" />
                 Upgrade to Premium
               </button>
               
-              {/* Restore Purchase Section */}
-              <div className="border-t border-slate-100 pt-4">
+              {/* Restore Purchase Section - FOR FREE USERS */}
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-4">
                  <div className="flex items-start gap-2 mb-3">
-                   <Key size={14} className="text-slate-400 mt-0.5" />
+                   <div className="bg-white p-1.5 rounded-full shadow-sm">
+                      <Key size={14} className="text-brand-600" />
+                   </div>
                    <div>
-                     <p className="text-xs font-semibold text-slate-600 uppercase">Sync Premium Status</p>
-                     <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
-                       Purchased on another device? Paste your Recovery Key below.
+                     <p className="text-sm font-bold text-slate-800">Already have Premium?</p>
+                     <p className="text-xs text-slate-500 mt-0.5 leading-tight">
+                       If you bought Premium on another device (like your desktop), paste the <strong>Recovery Key</strong> here to sync it.
                      </p>
                    </div>
                  </div>
                  
-                <div className="flex gap-2">
-                  <input 
-                    type="text" 
-                    value={restoreInput}
-                    onChange={(e) => setRestoreInput(e.target.value)}
-                    placeholder="Paste Key here..."
-                    className="flex-1 text-sm px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-brand-500"
-                  />
-                  <button 
-                    onClick={handleRestore}
-                    disabled={!restoreInput}
-                    className="bg-slate-800 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-700 disabled:opacity-50"
-                  >
-                    Restore
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </section>
-
-        {/* Preferences */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Preferences</h3>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 text-slate-700">
-              <Globe size={20} />
-              <span>Region</span>
-            </div>
-            <select
-              value={user.region}
-              onChange={handleRegionChange}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-brand-500"
-            >
-              <option value="INDIA">India (₹)</option>
-              <option value="GLOBAL">Global ($)</option>
-            </select>
-          </div>
-        </section>
-
-        {/* Data & Privacy */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Data & Privacy</h3>
-          
-          <button onClick={handleClearData} className="w-full flex items-center gap-3 text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors">
-            <LogOut size={20} />
-            <span>Clear Chats & Logs</span>
-          </button>
-          
-          <div className="pt-2 text-xs text-slate-400 text-center">
-            ReliefAnchor v1.0.0 <br />
-            Data is stored locally on your device.
-          </div>
-        </section>
-
-        {/* Logout */}
-        <button 
-          onClick={handleLogout} 
-          className="w-full py-3 text-slate-500 font-medium hover:text-slate-800 transition-colors"
-        >
-          Log Out
-        </button>
-      </div>
-
-      <PremiumModal 
-        isOpen={showPremium} 
-        onClose={() => setShowPremium(false)}
-        onSuccess={() => {
-          setUser(storageService.getUser());
-          // Don't alert here, the modal handles the success view now
-        }}
-      />
-    </div>
-  );
-}
+                <div className="space-y-2">
+                  
