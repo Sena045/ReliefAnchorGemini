@@ -86,6 +86,25 @@ export default function Chat() {
     alert("Welcome to Premium! You have unlimited messages.");
   };
 
+  // Helper to render text with clickable links
+  const renderMessageText = (text: string, isUser: boolean) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) => 
+      urlRegex.test(part) ? (
+        <a 
+          key={i} 
+          href={part} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className={`underline font-bold ${isUser ? 'text-white hover:text-slate-200' : 'text-brand-600 hover:text-brand-800'}`}
+        >
+          {part}
+        </a>
+      ) : part
+    );
+  };
+
   return (
     <div className="flex flex-col h-full bg-slate-50">
       {/* Header */}
@@ -130,7 +149,7 @@ export default function Chat() {
                   : 'bg-white text-slate-800 border border-slate-100 rounded-bl-none'
               }`}
             >
-              {msg.text}
+              {renderMessageText(msg.text, msg.role === 'user')}
             </div>
           </div>
         ))}

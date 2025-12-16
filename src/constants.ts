@@ -33,8 +33,15 @@ export const HELPLINES = {
 export const MAX_FREE_MESSAGES = 5;
 
 export const WELLNESS_TOOLS = [
-  { id: 'breathing', name: '4-7-8 Breathing', icon: 'Wind', desc: 'Calm anxiety quickly' },
-  { id: 'grounding', name: '5-4-3-2-1 Grounding', icon: 'Anchor', desc: 'Connect to the present' },
-  { id: 'journal', name: 'Micro Journal', icon: 'Book', desc: 'Track your thoughts' },
-  { id: 'sound', name: 'Calm Sounds', icon: 'Music', desc: 'Binaural beats' }
+  // FREE TOOLS
+  { id: 'breathing', name: '4-7-8 Breathing', icon: 'Wind', desc: 'Calm anxiety quickly', isFree: true },
+  { id: 'bubble', name: 'Bubble Pop', icon: 'Circle', desc: 'Stress relief popping', isFree: true },
+  { id: 'memory', name: 'Zen Memory', icon: 'Grid', desc: 'Focus & match cards', isFree: true },
+  
+  // PREMIUM TOOLS
+  { id: 'grounding', name: '5-4-3-2-1 Grounding', icon: 'Anchor', desc: 'Connect to the present', isFree: false },
+  { id: 'journal', name: 'Micro Journal', icon: 'Book', desc: 'Track your thoughts', isFree: false },
+  { id: 'sound', name: 'Calm Sounds', icon: 'Music', desc: 'Binaural beats', isFree: false },
+  { id: 'pixel', name: 'Pixel Calm', icon: 'Palette', desc: 'Draw and relax', isFree: false },
+  { id: 'echo', name: 'Echo Patterns', icon: 'Sun', desc: 'Follow the rhythm', isFree: false }
 ];

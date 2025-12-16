@@ -16,7 +16,7 @@ const getClient = () => {
   if (!aiClient) {
     const apiKey = getApiKey();
     if (!apiKey) {
-      throw new Error("Gemini API Key is missing. Please add 'API_KEY' to your environment variables (.env file locally or Netlify settings).");
+      throw new Error("Gemini API Key is missing. Get a FREE key at https://aistudio.google.com/app/apikey and add it to your .env file as API_KEY.");
     }
     aiClient = new GoogleGenAI({ apiKey });
   }

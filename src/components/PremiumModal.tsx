@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { X, Check, Lock, Star } from 'lucide-react';
 import { storageService } from '../services/storageService';
 import { PRICING, RAZORPAY_TEST_KEY } from '../constants';
-import { UserState } from '../types';
 
 interface Props {
   isOpen: boolean;
@@ -72,6 +71,11 @@ export const PremiumModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) =>
           <button onClick={onClose} className="absolute top-4 right-4 text-white/80 hover:text-white">
             <X size={24} />
           </button>
+          
+          <div className="absolute top-4 left-4 bg-yellow-400/20 border border-yellow-400/40 text-yellow-100 text-[10px] font-bold px-2 py-0.5 rounded">
+            TEST MODE
+          </div>
+
           <div className="flex justify-center mb-4">
             <div className="p-3 bg-white/20 rounded-full">
               <Star size={32} className="text-yellow-300 fill-yellow-300" />
@@ -101,7 +105,9 @@ export const PremiumModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) =>
           <div className="text-center mb-6">
             <p className="text-sm text-slate-500 mb-1">One-time payment</p>
             <div className="text-3xl font-bold text-slate-900">{pricing.label}</div>
-            <p className="text-xs text-slate-400 mt-2">Secure payment via Razorpay</p>
+            <p className="text-xs text-amber-600 font-medium mt-2 bg-amber-50 inline-block px-2 py-1 rounded">
+              Test Mode: No real money charged
+            </p>
           </div>
 
           <button
