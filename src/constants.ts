@@ -2,7 +2,7 @@ import { Region } from './types';
 
 // NOTE: In production, use environment variables. 
 // For this demo artifact, we use a public test key for Razorpay simulation.
-export const RAZORPAY_TEST_KEY = "rzp_test_1DP5mmOlF5G5ag"; 
+export const RAZORPAY_TEST_KEY = "rzp_test_RsET8c7WDOT3UM"; 
 
 export const PRICING = {
   INDIA: {
