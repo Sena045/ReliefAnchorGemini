@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, User, LogOut, Ban } from 'lucide-react';
+import { Globe, User, LogOut, Ban, Calendar } from 'lucide-react';
 import { storageService } from '../services/storageService';
 import { UserState } from '../types';
 import { PremiumModal } from '../components/PremiumModal';
@@ -26,7 +26,8 @@ export default function Settings() {
     if (confirm("Are you sure you want to cancel your Premium benefits? You will lose access to exclusive wellness tools and unlimited chat.")) {
       const newUser = storageService.updateUser({ 
         isPremium: false, 
-        premiumUntil: null 
+        premiumUntil: null,
+        planType: null
       });
       setUser(newUser);
       alert("Premium subscription cancelled. You are now on the Free Plan.");
@@ -48,8 +49,16 @@ export default function Settings() {
             <div>
               <h3 className="font-bold text-slate-800">Your Account</h3>
               <p className={`text-sm font-medium ${user.isPremium ? 'text-brand-600' : 'text-slate-500'}`}>
-                {user.isPremium ? 'Premium Member' : 'Free Plan'}
+                {user.isPremium 
+                  ? `${user.planType === 'YEARLY' ? 'Yearly' : 'Monthly'} Premium Member` 
+                  : 'Free Plan'}
               </p>
+              {user.isPremium && user.premiumUntil && (
+                <div className="flex items-center gap-1 text-xs text-slate-400 mt-1">
+                  <Calendar size={12} />
+                  <span>Valid until {user.premiumUntil}</span>
+                </div>
+              )}
             </div>
           </div>
           

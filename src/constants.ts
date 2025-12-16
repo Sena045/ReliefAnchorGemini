@@ -4,18 +4,46 @@ import { Region } from './types';
 // For this demo artifact, we use a public test key for Razorpay simulation.
 export const RAZORPAY_TEST_KEY = "rzp_test_RsET8c7WDOT3UM"; 
 
-export const PRICING = {
+export const PRICING_TIERS = {
   INDIA: {
-    currency: 'INR',
-    amount: 49900, // in paise
-    label: '₹499',
-    symbol: '₹'
+    MONTHLY: { 
+      id: 'MONTHLY',
+      currency: 'INR', 
+      amount: 19900, // ₹199
+      label: '₹199 / mo', 
+      symbol: '₹',
+      durationDays: 30,
+      name: 'Monthly Plan'
+    },
+    YEARLY: { 
+      id: 'YEARLY',
+      currency: 'INR', 
+      amount: 149900, // ₹1499
+      label: '₹1,499 / yr', 
+      symbol: '₹',
+      durationDays: 365,
+      name: 'Yearly Plan (Best Value)'
+    }
   },
   GLOBAL: {
-    currency: 'USD',
-    amount: 999, // in cents
-    label: '$9.99',
-    symbol: '$'
+    MONTHLY: { 
+      id: 'MONTHLY',
+      currency: 'USD', 
+      amount: 499, // $4.99
+      label: '$4.99 / mo', 
+      symbol: '$',
+      durationDays: 30,
+      name: 'Monthly Plan'
+    },
+    YEARLY: { 
+      id: 'YEARLY',
+      currency: 'USD', 
+      amount: 3999, // $39.99
+      label: '$39.99 / yr', 
+      symbol: '$',
+      durationDays: 365,
+      name: 'Yearly Plan (Best Value)'
+    }
   }
 };
 

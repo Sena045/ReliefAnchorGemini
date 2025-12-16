@@ -1,9 +1,11 @@
 export type Region = 'INDIA' | 'GLOBAL';
+export type PlanType = 'MONTHLY' | 'YEARLY' | 'LIFETIME' | null;
 
 export interface UserState {
   region: Region;
   isPremium: boolean;
   premiumUntil: string | null;
+  planType: PlanType;
   messageCount: number;
   lastMessageDate: string; // YYYY-MM-DD
   signature?: string; // Cryptographic-like hash to prevent tampering

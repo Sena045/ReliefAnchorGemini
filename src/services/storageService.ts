@@ -13,7 +13,7 @@ const SECURITY_SALT = "RELIEF_ANCHOR_v1_SECURE_HASH_9988";
 // Generate a checksum for critical fields
 const generateSignature = (state: Partial<UserState>): string => {
   // We sign the fields that involve money or access control
-  const payload = `${state.isPremium}|${state.premiumUntil}|${state.region}|${state.paymentId || ''}|${SECURITY_SALT}`;
+  const payload = `${state.isPremium}|${state.premiumUntil}|${state.region}|${state.paymentId || ''}|${state.planType || ''}|${SECURITY_SALT}`;
   
   // Simple DJB2-like hashing for client-side obfuscation
   let hash = 5381;
@@ -28,6 +28,7 @@ const createInitialUser = (): UserState => {
     region: 'GLOBAL',
     isPremium: false,
     premiumUntil: null,
+    planType: null,
     messageCount: 0,
     lastMessageDate: new Date().toISOString().split('T')[0],
     paymentId: undefined
@@ -54,10 +55,9 @@ export const storageService = {
     if (user.signature !== expectedSignature) {
       console.warn("Security Alert: User data tampering detected. Reverting to safe state.");
       // Tampering detected (e.g., user changed isPremium: true manually)
-      // We strip premium access but keep non-critical data like messageCount if possible, 
-      // or just reset critical fields.
       user.isPremium = false;
       user.premiumUntil = null;
+      user.planType = null;
       user.paymentId = undefined;
       // Re-sign the sanitized user
       user.signature = generateSignature(user);
@@ -138,6 +138,5 @@ export const storageService = {
     localStorage.removeItem(KEYS.CHAT);
     localStorage.removeItem(KEYS.MOOD);
     localStorage.removeItem(KEYS.JOURNAL);
-    // Note: We deliberately do NOT remove KEYS.USER to protect the payment/premium status
   }
 };

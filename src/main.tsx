@@ -3,19 +3,25 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-class ErrorBoundary extends React.Component<{ children?: React.ReactNode }, { hasError: boolean }> {
-  public state = { hasError: false };
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
 
-  constructor(props: { children?: React.ReactNode }) {
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
-    // State is initialized via property initializer above to satisfy Typescript checks
+    this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError() {
+  static getDerivedStateFromError(_: Error): ErrorBoundaryState {
     return { hasError: true };
   }
 
-  componentDidCatch(error: any, errorInfo: any) {
+  componentDidCatch(error: any, errorInfo: React.ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
   }
 
@@ -34,7 +40,7 @@ class ErrorBoundary extends React.Component<{ children?: React.ReactNode }, { ha
         </div>
       );
     }
-    // Using explicit generic prop access if needed, but standard access should work
+
     return this.props.children;
   }
 }

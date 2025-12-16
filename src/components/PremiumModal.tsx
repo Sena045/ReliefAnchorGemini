@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Check, Lock, Star } from 'lucide-react';
+import { X, Check, Lock, Star, Calendar, Clock } from 'lucide-react';
 import { storageService } from '../services/storageService';
-import { PRICING, RAZORPAY_TEST_KEY } from '../constants';
+import { PRICING_TIERS, RAZORPAY_TEST_KEY } from '../constants';
+import { addDays, format } from 'date-fns';
 
 interface Props {
   isOpen: boolean;
@@ -11,26 +12,34 @@ interface Props {
 
 export const PremiumModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'MONTHLY' | 'YEARLY'>('YEARLY');
   const user = storageService.getUser();
-  const pricing = user.region === 'INDIA' ? PRICING.INDIA : PRICING.GLOBAL;
+  
+  const pricingTiers = user.region === 'INDIA' ? PRICING_TIERS.INDIA : PRICING_TIERS.GLOBAL;
+  const plan = pricingTiers[selectedPlan];
 
   const handlePayment = () => {
     setLoading(true);
 
     const options = {
       key: RAZORPAY_TEST_KEY,
-      amount: pricing.amount,
-      currency: pricing.currency,
+      amount: plan.amount,
+      currency: plan.currency,
       name: "ReliefAnchor Premium",
-      description: "Lifetime Access to Wellness Tools",
+      description: `${plan.name} Access`,
       image: "https://picsum.photos/128/128",
       handler: function (response: any) {
+        // Calculate expiration date
+        const expiryDate = addDays(new Date(), plan.durationDays);
+        const expiryString = format(expiryDate, 'yyyy-MM-dd');
+
         // Client-side verification for this serverless architecture
         if (response.razorpay_payment_id) {
           storageService.updateUser({
             isPremium: true,
-            premiumUntil: '2099-12-31', // Lifetime
-            paymentId: response.razorpay_payment_id // Link transaction ID for audit
+            premiumUntil: expiryString,
+            planType: selectedPlan,
+            paymentId: response.razorpay_payment_id
           });
           onSuccess();
           onClose();
@@ -88,25 +97,56 @@ export const PremiumModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) =>
 
         {/* Content */}
         <div className="p-6">
-          <div className="space-y-4 mb-6">
+          <div className="space-y-3 mb-6">
             <div className="flex items-center gap-3">
-              <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-600" /></div>
-              <span className="text-slate-700">Unlimited AI Chat Messages</span>
+              <div className="bg-green-100 p-1 rounded-full"><Check size={14} className="text-green-600" /></div>
+              <span className="text-slate-700 text-sm">Unlimited AI Chat Messages</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-600" /></div>
-              <span className="text-slate-700">Full Access to Wellness Hub</span>
+              <div className="bg-green-100 p-1 rounded-full"><Check size={14} className="text-green-600" /></div>
+              <span className="text-slate-700 text-sm">Full Access to Wellness Hub</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="bg-green-100 p-1 rounded-full"><Check size={16} className="text-green-600" /></div>
-              <span className="text-slate-700">Advanced Mood Analytics</span>
+              <div className="bg-green-100 p-1 rounded-full"><Check size={14} className="text-green-600" /></div>
+              <span className="text-slate-700 text-sm">Advanced Mood Analytics</span>
             </div>
           </div>
 
+          {/* Plan Selection */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+             <button 
+               onClick={() => setSelectedPlan('MONTHLY')}
+               className={`p-3 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${
+                 selectedPlan === 'MONTHLY' 
+                  ? 'border-brand-500 bg-brand-50 text-brand-700' 
+                  : 'border-slate-100 bg-white text-slate-500 hover:border-slate-200'
+               }`}
+             >
+               <span className="text-xs font-bold uppercase mb-1">Monthly</span>
+               <span className="text-lg font-bold">{pricingTiers.MONTHLY.label}</span>
+             </button>
+
+             <button 
+               onClick={() => setSelectedPlan('YEARLY')}
+               className={`relative p-3 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${
+                 selectedPlan === 'YEARLY' 
+                  ? 'border-brand-500 bg-brand-50 text-brand-700' 
+                  : 'border-slate-100 bg-white text-slate-500 hover:border-slate-200'
+               }`}
+             >
+               <div className="absolute -top-3 bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-200">
+                 BEST VALUE
+               </div>
+               <span className="text-xs font-bold uppercase mb-1">Yearly</span>
+               <span className="text-lg font-bold">{pricingTiers.YEARLY.label}</span>
+             </button>
+          </div>
+
           <div className="text-center mb-6">
-            <p className="text-sm text-slate-500 mb-1">One-time payment</p>
-            <div className="text-3xl font-bold text-slate-900">{pricing.label}</div>
-            <p className="text-xs text-amber-600 font-medium mt-2 bg-amber-50 inline-block px-2 py-1 rounded">
+            <p className="text-sm text-slate-500 mb-1">
+              Billed {selectedPlan === 'MONTHLY' ? 'Monthly' : 'Yearly'}
+            </p>
+            <p className="text-xs text-amber-600 font-medium mt-1 bg-amber-50 inline-block px-2 py-1 rounded">
               Test Mode: No real money charged
             </p>
           </div>
@@ -121,7 +161,7 @@ export const PremiumModal: React.FC<Props> = ({ isOpen, onClose, onSuccess }) =>
             ) : (
               <>
                 <Lock size={18} />
-                <span>Get Lifetime Access</span>
+                <span>Start {plan.name}</span>
               </>
             )}
           </button>
