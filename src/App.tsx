@@ -1,7 +1,9 @@
-import React, { Suspense } from 'react';
-import { HashRouter as Router, Routes, Route, useLocation, Link } from 'react-router-dom';
+import React, { Suspense, useState, useEffect } from 'react';
+import { HashRouter as Router, Routes, Route, useLocation, Link, Navigate } from 'react-router-dom';
 import { MessageCircle, Activity, Heart, Settings } from 'lucide-react';
 import { clsx } from 'clsx';
+import { storageService } from './services/storageService';
+import Login from './pages/Login';
 
 // Lazy load pages
 const Chat = React.lazy(() => import('./pages/Chat'));
@@ -61,6 +63,28 @@ const Layout = ({ children }: { children?: React.ReactNode }) => {
 };
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const loggedIn = storageService.isLoggedIn();
+    setIsAuthenticated(loggedIn);
+    setIsLoading(false);
+  }, []);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
+  if (isLoading) {
+    return null; // Or a loading spinner
+  }
+
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />;
+  }
+
   return (
     <Router>
       <Layout>
@@ -69,6 +93,7 @@ export default function App() {
           <Route path="/mood" element={<Mood />} />
           <Route path="/wellness" element={<Wellness />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
     </Router>

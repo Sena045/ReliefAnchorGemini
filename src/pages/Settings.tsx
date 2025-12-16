@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, User, LogOut, Ban, Calendar } from 'lucide-react';
+import { Globe, User, LogOut, Ban, Calendar, Mail } from 'lucide-react';
 import { storageService } from '../services/storageService';
 import { UserState } from '../types';
 import { PremiumModal } from '../components/PremiumModal';
@@ -11,14 +11,17 @@ export default function Settings() {
   const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newUser = storageService.updateUser({ region: e.target.value as 'INDIA' | 'GLOBAL' });
     setUser(newUser);
-    // Reload to apply currency/helpline changes cleanly
-    window.location.reload();
   };
 
   const handleClearData = () => {
     if (confirm("Are you sure? This deletes all your chats, mood logs, and journal entries. \n\nYour Premium Membership and Region settings will be SAFE and preserved.")) {
-      storageService.clearPrivateData();
-      window.location.reload();
+      try {
+        storageService.clearPrivateData();
+        alert("Data cleared successfully.");
+      } catch (error) {
+        console.error("Error clearing data:", error);
+        alert("Failed to clear data.");
+      }
     }
   };
 
@@ -31,7 +34,13 @@ export default function Settings() {
       });
       setUser(newUser);
       alert("Premium subscription cancelled. You are now on the Free Plan.");
-      window.location.reload();
+    }
+  };
+
+  const handleLogout = () => {
+    if (confirm("Are you sure you want to log out?")) {
+      storageService.logout();
+      window.location.reload(); // Reload to trigger App auth check
     }
   };
 
@@ -46,13 +55,17 @@ export default function Settings() {
             <div className={`w-12 h-12 rounded-full flex items-center justify-center ${user.isPremium ? 'bg-brand-100' : 'bg-slate-100'}`}>
               <User className={user.isPremium ? 'text-brand-600' : 'text-slate-500'} />
             </div>
-            <div>
+            <div className="overflow-hidden">
               <h3 className="font-bold text-slate-800">Your Account</h3>
               <p className={`text-sm font-medium ${user.isPremium ? 'text-brand-600' : 'text-slate-500'}`}>
                 {user.isPremium 
                   ? `${user.planType === 'YEARLY' ? 'Yearly' : 'Monthly'} Premium Member` 
                   : 'Free Plan'}
               </p>
+              <div className="flex items-center gap-1 text-xs text-slate-400 mt-1 truncate">
+                 <Mail size={12} />
+                 <span className="truncate">{user.email}</span>
+              </div>
               {user.isPremium && user.premiumUntil && (
                 <div className="flex items-center gap-1 text-xs text-slate-400 mt-1">
                   <Calendar size={12} />
@@ -114,6 +127,14 @@ export default function Settings() {
             Data is stored locally on your device.
           </div>
         </section>
+
+        {/* Logout */}
+        <button 
+          onClick={handleLogout} 
+          className="w-full py-3 text-slate-500 font-medium hover:text-slate-800 transition-colors"
+        >
+          Log Out
+        </button>
       </div>
 
       <PremiumModal 

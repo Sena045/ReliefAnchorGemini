@@ -2,6 +2,7 @@ export type Region = 'INDIA' | 'GLOBAL';
 export type PlanType = 'MONTHLY' | 'YEARLY' | 'LIFETIME' | null;
 
 export interface UserState {
+  email: string; // Unique identifier
   region: Region;
   isPremium: boolean;
   premiumUntil: string | null;
