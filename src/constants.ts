@@ -9,8 +9,8 @@ export const PRICING_TIERS = {
     MONTHLY: { 
       id: 'MONTHLY',
       currency: 'INR', 
-      amount: 19900, // ₹199
-      label: '₹199 / mo', 
+      amount: 49900, // ₹499
+      label: '₹499 / mo', 
       symbol: '₹',
       durationDays: 30,
       name: 'Monthly Plan'
@@ -18,8 +18,8 @@ export const PRICING_TIERS = {
     YEARLY: { 
       id: 'YEARLY',
       currency: 'INR', 
-      amount: 149900, // ₹1499
-      label: '₹1,499 / yr', 
+      amount: 399900, // ₹3999
+      label: '₹3,999 / yr', 
       symbol: '₹',
       durationDays: 365,
       name: 'Yearly Plan (Best Value)'
@@ -29,8 +29,8 @@ export const PRICING_TIERS = {
     MONTHLY: { 
       id: 'MONTHLY',
       currency: 'USD', 
-      amount: 499, // $4.99
-      label: '$4.99 / mo', 
+      amount: 999, // $9.99
+      label: '$9.99 / mo', 
       symbol: '$',
       durationDays: 30,
       name: 'Monthly Plan'
@@ -38,8 +38,8 @@ export const PRICING_TIERS = {
     YEARLY: { 
       id: 'YEARLY',
       currency: 'USD', 
-      amount: 3999, // $39.99
-      label: '$39.99 / yr', 
+      amount: 5999, // $59.99
+      label: '$59.99 / yr', 
       symbol: '$',
       durationDays: 365,
       name: 'Yearly Plan (Best Value)'
