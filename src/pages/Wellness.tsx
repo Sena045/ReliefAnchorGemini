@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Wind, Anchor, Book, Music, Lock, ArrowLeft } from 'lucide-react';
 import { storageService } from '../services/storageService';
 import { WELLNESS_TOOLS } from '../constants';
@@ -20,6 +20,14 @@ export default function Wellness() {
   const handleUpgradeSuccess = () => {
     alert("Unlocked all wellness tools!");
     setShowPremium(false);
+  };
+
+  // Explicit mapping to avoid TypeScript errors with dynamic indexing
+  const iconMap: Record<string, React.ElementType> = {
+    Wind,
+    Anchor,
+    Book,
+    Music
   };
 
   if (activeTool) {
@@ -75,7 +83,7 @@ export default function Wellness() {
       <div className="grid grid-cols-2 gap-4">
         {WELLNESS_TOOLS.map((tool) => {
           const isLocked = !user.isPremium && tool.id !== 'breathing';
-          const Icon = { Wind, Anchor, Book, Music }[tool.icon as keyof typeof import('lucide-react')] || Wind;
+          const Icon = iconMap[tool.icon] || Wind;
 
           return (
             <button

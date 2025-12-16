@@ -1,4 +1,4 @@
-import { UserState, MoodLog, ChatMessage, Region } from '../types';
+import { UserState, MoodLog, ChatMessage } from '../types';
 
 const KEYS = {
   USER: 'relief_anchor_user',

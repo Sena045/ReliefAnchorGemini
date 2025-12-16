@@ -8,8 +8,8 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     base: '/',
     define: {
-      // Safely replace process.env.API_KEY with the string value
-      'process.env.API_KEY': JSON.stringify(env.API_KEY)
+      // Safely replace process.env.API_KEY with the string value, fallback to empty string if undefined
+      'process.env.API_KEY': JSON.stringify(env.API_KEY || '')
     },
     build: {
       outDir: 'dist',

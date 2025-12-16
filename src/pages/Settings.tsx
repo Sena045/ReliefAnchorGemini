@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, User, Shield, CreditCard, LogOut } from 'lucide-react';
+import { Globe, User, LogOut } from 'lucide-react';
 import { storageService } from '../services/storageService';
 import { UserState } from '../types';
 import { PremiumModal } from '../components/PremiumModal';

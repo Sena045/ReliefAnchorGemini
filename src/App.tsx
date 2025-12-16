@@ -1,9 +1,7 @@
-import React, { Suspense, useEffect, useState } from 'react';
-import { HashRouter as Router, Routes, Route, useLocation, useNavigate, Link } from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { HashRouter as Router, Routes, Route, useLocation, Link } from 'react-router-dom';
 import { MessageCircle, Activity, Heart, Settings } from 'lucide-react';
 import { clsx } from 'clsx';
-import { storageService } from './services/storageService';
-import { UserState } from './types';
 
 // Lazy load pages
 const Chat = React.lazy(() => import('./pages/Chat'));
@@ -13,7 +11,6 @@ const SettingsPage = React.lazy(() => import('./pages/Settings'));
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  const [user, setUser] = useState<UserState>(storageService.getUser());
 
   const navItems = [
     { path: '/', icon: MessageCircle, label: 'Anya' },

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Send, Lock, AlertTriangle, Menu, Sparkles } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Send, Lock, Sparkles } from 'lucide-react';
 import { geminiService } from '../services/geminiService';
 import { storageService } from '../services/storageService';
 import { ChatMessage, UserState } from '../types';

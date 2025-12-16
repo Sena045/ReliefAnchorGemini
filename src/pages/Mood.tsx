@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Smile, Meh, Frown, Plus } from 'lucide-react';
+import { Smile, Meh, Frown } from 'lucide-react';
 import { storageService } from '../services/storageService';
 import { MoodLog } from '../types';
 import { format } from 'date-fns';
