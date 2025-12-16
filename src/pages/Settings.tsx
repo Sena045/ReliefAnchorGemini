@@ -200,4 +200,82 @@ export default function Settings() {
                  </div>
                  
                 <div className="space-y-2">
-                  
+                  <input 
+                    type="text" 
+                    value={restoreInput}
+                    onChange={(e) => setRestoreInput(e.target.value)}
+                    placeholder="Paste Recovery Key here..."
+                    className="w-full text-sm px-3 py-2.5 bg-white border border-slate-200 rounded-lg outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 shadow-sm"
+                  />
+                  <button 
+                    onClick={handleRestore}
+                    disabled={!restoreInput}
+                    className="w-full bg-slate-800 text-white px-3 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                  >
+                    <span>Restore Purchase</span>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Preferences */}
+        <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Preferences</h3>
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 text-slate-700">
+              <Globe size={20} />
+              <span>Region</span>
+            </div>
+            <select
+              value={user.region}
+              onChange={handleRegionChange}
+              className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-brand-500"
+            >
+              <option value="INDIA">India (₹)</option>
+              <option value="GLOBAL">Global ($)</option>
+            </select>
+          </div>
+        </section>
+
+        {/* Data & Privacy */}
+        <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Data & Privacy</h3>
+          
+          <button onClick={handleClearData} className="w-full flex items-center gap-3 text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors">
+            <LogOut size={20} />
+            <span>Clear Chats & Logs</span>
+          </button>
+          
+          <div className="pt-2 flex flex-col items-center gap-1 text-xs text-slate-400 text-center">
+             <div className="flex items-center gap-1">
+                <Info size={12} />
+                <span>ReliefAnchor v1.0.1</span>
+             </div>
+             <span>Data is stored locally on this device.</span>
+          </div>
+        </section>
+
+        {/* Logout */}
+        <button 
+          onClick={handleLogout} 
+          className="w-full py-3 text-slate-500 font-medium hover:text-slate-800 transition-colors"
+        >
+          Log Out
+        </button>
+      </div>
+
+      <PremiumModal 
+        isOpen={showPremium} 
+        onClose={() => setShowPremium(false)}
+        onSuccess={() => {
+          setUser(storageService.getUser());
+          // Don't alert here, the modal handles the success view now
+        }}
+      />
+    </div>
+  );
+}
