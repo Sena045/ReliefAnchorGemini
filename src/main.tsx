@@ -3,10 +3,12 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
-  constructor(props: { children: React.ReactNode }) {
+class ErrorBoundary extends React.Component<{ children?: React.ReactNode }, { hasError: boolean }> {
+  public state = { hasError: false };
+
+  constructor(props: { children?: React.ReactNode }) {
     super(props);
-    this.state = { hasError: false };
+    // State is initialized via property initializer above to satisfy Typescript checks
   }
 
   static getDerivedStateFromError() {
@@ -32,6 +34,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
         </div>
       );
     }
+    // Using explicit generic prop access if needed, but standard access should work
     return this.props.children;
   }
 }

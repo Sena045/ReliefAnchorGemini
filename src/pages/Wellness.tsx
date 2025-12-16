@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Wind, Anchor, Book, Music, Lock, ArrowLeft, Play, Pause, 
   Save, Check, RefreshCw, Circle, Grid, Palette, Sun, Eraser, 
@@ -256,7 +256,7 @@ const BreathingExercise = () => {
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setTimeout>;
     if (isActive) {
       if (phase === 'ready') {
         setPhase('inhale');

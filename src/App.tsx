@@ -9,7 +9,7 @@ const Mood = React.lazy(() => import('./pages/Mood'));
 const Wellness = React.lazy(() => import('./pages/Wellness'));
 const SettingsPage = React.lazy(() => import('./pages/Settings'));
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+const Layout = ({ children }: { children?: React.ReactNode }) => {
   const location = useLocation();
 
   const navItems = [
