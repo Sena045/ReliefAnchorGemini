@@ -30,7 +30,7 @@ export const HELPLINES = {
   }
 };
 
-export const MAX_FREE_MESSAGES = 5;
+export const MAX_FREE_MESSAGES = 10;
 
 export const WELLNESS_TOOLS = [
   // FREE TOOLS
