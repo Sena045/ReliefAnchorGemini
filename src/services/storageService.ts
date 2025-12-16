@@ -23,12 +23,24 @@ const getKeys = () => {
 };
 
 // Generate a checksum for critical fields
-// We strictly convert null/undefined to empty strings to ensure consistency
 const generateSignature = (state: Partial<UserState>): string => {
-  const val = (v: any) => (v === null || v === undefined) ? '' : String(v);
+  // Robust value stringifier handling null/undefined/missing
+  const val = (v: any) => {
+    if (v === null || v === undefined) return '';
+    return String(v);
+  };
   
   // Payload structure: email|isPremium|premiumUntil|region|paymentId|planType|SALT
-  const payload = `${val(state.email)}|${val(state.isPremium)}|${val(state.premiumUntil)}|${val(state.region)}|${val(state.paymentId)}|${val(state.planType)}|${SECURITY_SALT}`;
+  // Explicitly accessing properties to ensure order and presence
+  const payload = [
+    val(state.email),
+    val(state.isPremium),
+    val(state.premiumUntil),
+    val(state.region),
+    val(state.paymentId),
+    val(state.planType),
+    SECURITY_SALT
+  ].join('|');
   
   // Simple DJB2-like hashing for client-side obfuscation
   let hash = 5381;
@@ -97,10 +109,7 @@ export const storageService = {
       return createInitialUser(email);
     }
     
-    // SECURITY CHECK: Verify Integrity
-    // We must handle cases where old data might use the old signature algorithm
-    // If the signature fails with the new robust algorithm, we check if it warrants a reset.
-    
+    // 1. SECURITY CHECK: Verify Integrity
     const currentSignature = generateSignature(user);
     
     if (user.signature !== currentSignature) {
@@ -115,26 +124,56 @@ export const storageService = {
       // Re-sign with new algorithm
       user.signature = generateSignature(user);
       localStorage.setItem(KEYS.USER, JSON.stringify(user));
+      return user; // Return early after reset
     }
 
-    // Reset daily count if date changed
+    let hasUpdates = false;
+
+    // 2. EXPIRY CHECK: Check if subscription has expired
+    if (user.isPremium && user.premiumUntil) {
+      const today = new Date().toISOString().split('T')[0];
+      // If premiumUntil is strictly less than today, it's expired.
+      // E.g. Valid until 2024-01-01. Today is 2024-01-02. Expired.
+      if (user.premiumUntil < today) {
+        console.log("Subscription expired on", user.premiumUntil);
+        user.isPremium = false;
+        user.premiumUntil = null;
+        user.planType = null;
+        // We keep paymentId for historical reference unless it causes issues, 
+        // but for now let's clear it to be safe and match the 'Free' state structure.
+        user.paymentId = undefined; 
+        hasUpdates = true;
+      }
+    }
+
+    // 3. DAILY RESET: Check message count
     const today = new Date().toISOString().split('T')[0];
     if (user.lastMessageDate !== today) {
       user.messageCount = 0;
       user.lastMessageDate = today;
-      // Re-sign because we changed state
+      hasUpdates = true;
+    }
+
+    // Save if any changes occurred
+    if (hasUpdates) {
       user.signature = generateSignature(user);
       localStorage.setItem(KEYS.USER, JSON.stringify(user));
     }
+
     return user;
   },
 
   updateUser: (updates: Partial<UserState>) => {
     const KEYS = getKeys();
     const current = storageService.getUser();
+    
+    // Merge updates
     const updated = { ...current, ...updates };
     
-    // Always recalculate signature on any update
+    // Explicitly handle undefined to ensure clean object if needed,
+    // though JSON.stringify handles undefined by removing keys.
+    
+    // Recalculate signature
     updated.signature = generateSignature(updated);
     
     localStorage.setItem(KEYS.USER, JSON.stringify(updated));
