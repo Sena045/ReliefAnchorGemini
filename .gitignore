@@ -69,8 +69,9 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file - SECURITY CRITICAL
-# .env (Enabled for this demo)
+# dotenv environment variables file
+# We are allowing .env for this demo artifact to ensure it works
+# .env 
 .env.test
 .env.production
 .env.local
