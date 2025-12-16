@@ -1,0 +1,7 @@
+{
+  "name": "ReliefAnchor",
+  "description": "A privacy-first, culturally adaptive Mental Health & Wellness PWA with AI chat and mood tracking.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
